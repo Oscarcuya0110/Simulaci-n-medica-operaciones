@@ -1,0 +1,1150 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Medica Scientific ProcesSim</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--maroon:#7a1f2b;--maroon-dark:#5a1520;--gold:#c9a227;--gold-light:#f0d060;--blue:#1b3a5c;--blue-light:#2a5480;--ink:#232323;--cream:#f6f1e7;--line:#e3d9c4;--green:#2e7d32;--green-light:#e8f5e9;--red:#a33;--red-light:#ffebee;--amber:#f57c00;--amber-light:#fff3e0;--bg:#f2ede3;--card:#ffffff;--card-border:#e0d8cc;--muted:#6b6050;color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1510;--card:#2a2218;--card-border:#3a3028;--ink:#f0ead8;--cream:#2a2218;--line:#3a3028;--muted:#a09070;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1a1510;--card:#2a2218;--card-border:#3a3028;--ink:#f0ead8;--cream:#2a2218;--line:#3a3028;--muted:#a09070;color-scheme:dark}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+body{padding-inline:16px;padding-block:12px;max-width:1280px;margin:0 auto}
+.header{background:var(--maroon);color:white;border-radius:10px;padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.header-title{font-size:1.3rem;font-weight:700;font-family:Georgia,serif}
+.header-sub{font-size:0.8rem;opacity:0.8;margin-top:2px}
+.header-meta{text-align:right;font-size:0.8rem;opacity:0.85}
+.goal-bar-wrap{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:14px 18px;margin-bottom:8px}
+.goal-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.goal-label{font-weight:700;font-size:1rem;color:var(--maroon);white-space:nowrap}
+.goal-pct{font-size:1.6rem;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;min-width:70px}
+.goal-track{flex:1;min-width:200px;height:20px;background:var(--line);border-radius:10px;overflow:hidden}
+.goal-fill{height:100%;background:linear-gradient(90deg,var(--maroon),var(--gold));border-radius:10px;transition:width 0.5s ease}
+.goal-nums{font-size:0.85rem;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.goal-daily{background:var(--amber-light);border:1px solid var(--amber);border-radius:6px;padding:4px 10px;font-size:0.82rem;color:var(--amber);font-weight:600;white-space:nowrap}
+/* EXEC BANNER */
+.exec-banner{background:var(--blue);color:white;border-radius:10px;padding:10px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:46px}
+.exec-banner-empty{font-size:0.85rem;opacity:0.7;width:100%;text-align:center}
+.exec-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-weight:700;font-size:0.85rem;white-space:nowrap}
+.exec-badge-gold{background:var(--gold);color:var(--ink)}
+.exec-badge-red{background:var(--red);color:white}
+.exec-badge-green{background:var(--green);color:white}
+.exec-badge-gray{background:rgba(255,255,255,0.2);color:white}
+.exec-section{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.exec-sep{width:1px;height:30px;background:rgba(255,255,255,0.2)}
+/* EXCEL LOADER */
+.excel-loader{background:linear-gradient(90deg,#1b3a5c,#2a5480);color:white;border-radius:10px;padding:14px 20px;margin-bottom:8px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}.grid-4{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.grid-4{grid-template-columns:1fr}.grid-3{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:14px 16px}
+.card-title{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-bottom:10px}
+.card-section{font-size:0.9rem;font-weight:700;color:var(--blue);margin-bottom:8px;border-bottom:2px solid var(--maroon);padding-bottom:4px}
+.kpi-tile{background:var(--card);border:1px solid var(--card-border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden}
+.kpi-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--maroon)}
+.kpi-tile.good::before{background:var(--green)}.kpi-tile.warn::before{background:var(--amber)}.kpi-tile.bad::before{background:var(--red)}
+.kpi-name{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:4px}
+.kpi-value{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1.1;margin-bottom:2px}
+.kpi-unit{font-size:0.7rem;color:var(--muted);margin-bottom:6px}
+.kpi-formula{font-size:0.7rem;color:var(--blue);background:#e8f0f8;border-radius:4px;padding:2px 6px;margin-bottom:4px;display:inline-block;font-family:'Courier New',monospace}
+.kpi-target{font-size:0.72rem;color:var(--green);font-weight:600}
+.kpi-def{font-size:0.68rem;color:var(--muted);margin-top:4px;line-height:1.35}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em}
+.field input,.field select{border:1.5px solid var(--line);border-radius:6px;padding:7px 10px;font-size:0.9rem;background:#fffdf7;color:var(--ink);font-variant-numeric:tabular-nums;width:100%;transition:border-color 0.2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gold);background:#fffff0}
+.field .hint{font-size:0.67rem;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border:none;border-radius:7px;font-size:0.88rem;font-weight:700;cursor:pointer;transition:opacity 0.15s,transform 0.1s}
+.btn:hover{opacity:0.88}.btn:active{transform:scale(0.97)}
+.btn-primary{background:var(--maroon);color:white}.btn-gold{background:var(--gold);color:var(--ink)}.btn-green{background:var(--green);color:white}.btn-outline{background:transparent;color:var(--maroon);border:2px solid var(--maroon)}.btn-sm{padding:5px 12px;font-size:0.78rem}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.rec-box{border-radius:10px;padding:14px 16px;border:2px solid var(--gold);background:linear-gradient(135deg,#fffdf0,#fff8dc)}
+.rec-title{font-size:0.78rem;font-weight:700;text-transform:uppercase;color:var(--amber);letter-spacing:0.05em;margin-bottom:8px}
+.rec-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;padding:8px 10px;border-radius:6px;background:rgba(255,255,255,0.7)}
+.rec-icon{font-size:1.2rem;line-height:1;min-width:24px}.rec-text{font-size:0.84rem;line-height:1.4}
+.rec-text strong{color:var(--maroon)}
+.solver-table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.solver-table th{background:var(--maroon);color:white;padding:6px 8px;text-align:center;font-size:0.72rem}
+.solver-table td{padding:5px 8px;text-align:center;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.solver-table tr.optimal{background:var(--green-light);font-weight:700}
+.solver-table tr:hover{background:#f0e8d0}
+.tbl-wrap{max-height:260px;overflow-y:auto;border-radius:0 0 8px 8px}
+.alert{border-radius:8px;padding:10px 14px;font-size:0.84rem;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.alert-green{background:var(--green-light);color:var(--green);border:1px solid var(--green)}
+.alert-red{background:var(--red-light);color:var(--red);border:1px solid var(--red)}
+.alert-amber{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber)}
+.hist-table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.hist-table th{background:var(--blue);color:white;padding:6px 8px;text-align:right;font-size:0.7rem}
+.hist-table th:first-child{text-align:left}
+.hist-table td{padding:5px 8px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.hist-table td:first-child{text-align:left;font-weight:600}
+.hist-table tr:last-child td{font-weight:700;background:#f5f0e8}
+.hist-wrap{max-height:220px;overflow-y:auto}
+canvas.spark{display:block;width:100%;height:80px}
+.wa-box{background:#e7fce8;border:1px solid #a5d6a7;border-radius:10px;padding:14px}
+.wa-pre{font-family:'Courier New',monospace;font-size:0.75rem;white-space:pre-wrap;line-height:1.5;color:#1b5e20;max-height:260px;overflow-y:auto;background:white;border-radius:6px;padding:10px;border:1px solid #c8e6c9}
+.wa-title{font-size:0.8rem;font-weight:700;color:#2e7d32;margin-bottom:8px}
+.tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:7px 16px;border-radius:7px 7px 0 0;border:none;background:#e0d8cc;color:var(--muted);font-size:0.82rem;font-weight:700;cursor:pointer;transition:all 0.15s}
+.tab.active{background:var(--maroon);color:white}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em}
+.tag-green{background:var(--green-light);color:var(--green)}.tag-red{background:var(--red-light);color:var(--red)}.tag-amber{background:var(--amber-light);color:var(--amber)}.tag-blue{background:#e3f2fd;color:var(--blue)}
+.sep{border:none;border-top:1px solid var(--line);margin:10px 0}
+.text-right{text-align:right}.text-muted{color:var(--muted);font-size:0.8rem}.mt8{margin-top:8px}.bold{font-weight:700}
+.flex-between{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.note{font-size:0.72rem;color:var(--muted);font-style:italic;margin-top:6px}
+/* PLAN DE ACCION */
+.plan-section-title{font-size:1rem;font-weight:700;color:var(--blue);margin:0 0 10px;border-left:4px solid var(--maroon);padding-left:10px}
+.action-card-big{border-radius:12px;padding:20px 22px;margin-bottom:14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.action-card-big.urgent{background:linear-gradient(135deg,#ffebee,#fce4ec);border:2px solid var(--red)}
+.action-card-big.optimal{background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border:2px solid var(--green)}
+.action-card-big.warn{background:linear-gradient(135deg,var(--amber-light),#ffe0b2);border:2px solid var(--amber)}
+.action-command{font-size:1.6rem;font-weight:700;font-family:Georgia,serif;flex:1;min-width:200px}
+.action-sub{font-size:0.85rem;color:var(--muted);margin-top:4px}
+.action-icon{font-size:2.5rem;line-height:1}
+.scenario-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:700px){.scenario-cards{grid-template-columns:1fr}}
+.scenario-card{border-radius:10px;padding:14px;border:1px solid var(--card-border);background:var(--card)}
+.scenario-card.s-opt{border-color:var(--green);background:var(--green-light)}
+.scenario-card.s-base{border-color:var(--blue);background:#e3f2fd}
+.scenario-card.s-pes{border-color:var(--amber);background:var(--amber-light)}
+.scenario-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);margin-bottom:6px}
+.scenario-value{font-size:1.3rem;font-weight:700;font-variant-numeric:tabular-nums}
+.scenario-sub{font-size:0.75rem;margin-top:4px;color:var(--muted)}
+.scenario-hit{font-size:0.72rem;font-weight:700;margin-top:6px;padding:2px 8px;border-radius:10px;display:inline-block}
+.hit-yes{background:var(--green-light);color:var(--green)}.hit-no{background:var(--red-light);color:var(--red)}
+.horizon-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+@media(max-width:700px){.horizon-grid{grid-template-columns:1fr}}
+.horizon-col{border-radius:10px;padding:14px;border:1px solid var(--card-border);background:var(--card)}
+.horizon-col-now{border-color:var(--red);background:#fff5f5}
+.horizon-col-mid{border-color:var(--blue);background:#f0f4ff}
+.horizon-col-long{border-color:var(--maroon);background:var(--cream)}
+.horizon-title{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid currentColor}
+.horizon-col-now .horizon-title{color:var(--red)}.horizon-col-mid .horizon-title{color:var(--blue)}.horizon-col-long .horizon-title{color:var(--maroon)}
+.horizon-item{font-size:0.82rem;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.06);display:flex;align-items:flex-start;gap:6px}
+.horizon-item:last-child{border-bottom:none}
+.roi-card{border-radius:10px;padding:14px;background:#f8f0ff;border:1px solid #ce93d8;margin-bottom:14px}
+.roi-formula{font-family:'Courier New',monospace;font-size:0.82rem;background:white;padding:10px 12px;border-radius:6px;margin-top:8px;line-height:1.7;border:1px solid #e1bee7}
+/* PROYECCION */
+canvas#proj-canvas{display:block;width:100%;height:300px;border-radius:8px;background:#fff}
+.proj-table{width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:12px}
+.proj-table th{background:var(--blue);color:white;padding:6px 10px;text-align:right}
+.proj-table th:first-child{text-align:left}
+.proj-table td{padding:5px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.proj-table td:first-child{text-align:left;font-weight:600}
+.proj-slider-wrap{display:flex;align-items:center;gap:12px;padding:12px 0;flex-wrap:wrap}
+.proj-slider-wrap input[type=range]{flex:1;min-width:140px;accent-color:var(--maroon)}
+</style>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-title">🏥 Medica Scientific ProcesSim Labs</div>
+    <div class="header-sub">Dashboard de Operaciones · Gerencia de Operaciones MIMIT-2027 · Sección 26-09</div>
+  </div>
+  <div class="header-meta">
+    Día Virtual: <strong id="hdr-day">50</strong> / 292<br>
+    Ronda: <strong id="hdr-ronda">0</strong><br>
+    <span id="hdr-time" style="font-size:0.72rem;opacity:0.7"></span>
+  </div>
+</div>
+
+<!-- GOAL BAR -->
+<div class="goal-bar-wrap">
+  <div class="goal-row">
+    <div>
+      <div class="goal-label">🎯 Meta: $20,000,000</div>
+      <div class="text-muted mt8">Utilidad Acumulada · Simulación Medica Scientific</div>
+    </div>
+    <div class="goal-pct" id="goal-pct">0%</div>
+    <div class="goal-track"><div class="goal-fill" id="goal-fill" style="width:0%"></div></div>
+    <div class="goal-nums">
+      <div><strong id="goal-acum">$0</strong> acumulado</div>
+      <div>Faltan: <strong id="goal-falta">$20,000,000</strong></div>
+    </div>
+    <div class="goal-daily" id="goal-daily">Meta/día: $82,645</div>
+  </div>
+</div>
+
+<!-- EXEC BANNER -->
+<div class="exec-banner" id="exec-banner">
+  <span class="exec-banner-empty">⬆️ Carga el Excel para ver el plan de acción ejecutivo</span>
+</div>
+
+<!-- EXCEL LOADER -->
+<div class="excel-loader">
+  <div style="flex:1;min-width:200px">
+    <div style="font-weight:700;font-size:1rem">📂 Cargar Excel del Simulador</div>
+    <div style="font-size:0.78rem;opacity:0.85;margin-top:2px">Descarga el Excel de ProcesSim → súbelo aquí → los datos se llenan automáticamente</div>
+  </div>
+  <label style="display:inline-flex;align-items:center;gap:8px;background:#c9a227;color:#232323;padding:10px 18px;border-radius:7px;font-weight:700;font-size:0.88rem;cursor:pointer">
+    📥 Seleccionar Excel
+    <input type="file" id="excel-file-input" accept=".xlsx,.xls" style="display:none" onchange="cargarExcel(this)">
+  </label>
+  <div id="excel-status" style="font-size:0.78rem;opacity:0.8;min-width:180px">Sin archivo cargado</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('plan')">🧠 Plan de Acción</button>
+  <button class="tab" onclick="showTab('proyeccion')">🔮 Proyección</button>
+  <button class="tab" onclick="showTab('entrada')">📥 Entrada de Datos</button>
+  <button class="tab" onclick="showTab('kpis')">📊 KPIs</button>
+  <button class="tab" onclick="showTab('solver')">🔧 Solver MCE%</button>
+  <button class="tab" onclick="showTab('sistemaq')">📦 Sistema Q</button>
+  <button class="tab" onclick="showTab('historial')">📈 Historial</button>
+  <button class="tab" onclick="showTab('whatsapp')">💬 WhatsApp</button>
+</div>
+
+<!-- TAB: PLAN DE ACCION -->
+<div class="tab-panel active" id="tab-plan">
+  <div id="plan-empty" style="text-align:center;padding:40px 20px;color:var(--muted)">
+    <div style="font-size:3rem;margin-bottom:12px">🧠</div>
+    <div style="font-size:1.1rem;font-weight:700;color:var(--blue);margin-bottom:8px">Carga el Excel o ingresa datos manualmente</div>
+    <div style="font-size:0.85rem">Ve a la pestaña <strong>📥 Entrada de Datos</strong>, ingresa los valores y presiona <strong>⚡ Calcular KPIs</strong> para ver el plan completo aquí.</div>
+  </div>
+  <div id="plan-content" style="display:none">
+    <!-- Section A: Acción Ahora -->
+    <div class="plan-section-title">🚨 SECCIÓN A — Acción Ahora (Esta Ronda)</div>
+    <div class="action-card-big" id="plan-action-card">
+      <div class="action-icon" id="plan-action-icon">⏳</div>
+      <div style="flex:1">
+        <div class="action-command" id="plan-action-cmd">Calculando...</div>
+        <div class="action-sub" id="plan-action-sub"></div>
+      </div>
+    </div>
+
+    <!-- Section B: Maquinaria -->
+    <div class="plan-section-title">🏭 SECCIÓN B — ¿Debo Comprar Maquinaria?</div>
+    <div id="plan-maq-card" class="card" style="margin-bottom:14px">
+      <div id="plan-maq-decision" style="font-size:1rem;font-weight:700;margin-bottom:10px"></div>
+      <div id="plan-maq-reason" style="font-size:0.85rem;color:var(--muted);margin-bottom:10px"></div>
+      <div class="roi-card" id="plan-roi-card">
+        <div style="font-weight:700;color:#7b1fa2;margin-bottom:6px">📐 Fórmula ROI de Maquinaria</div>
+        <div class="roi-formula" id="plan-roi-formula">Ingresa costo de maquinaria en la sección de Expansión de Capacidad para ver el análisis</div>
+      </div>
+    </div>
+
+    <!-- Section C: Proyección -->
+    <div class="plan-section-title">🔮 SECCIÓN C — Proyección al Día 292</div>
+    <div class="scenario-cards" id="plan-scenarios"></div>
+
+    <!-- Section D: Horizontes -->
+    <div class="plan-section-title">📋 SECCIÓN D — Decisiones por Horizonte</div>
+    <div class="horizon-grid" id="plan-horizons"></div>
+  </div>
+</div>
+
+<!-- TAB: PROYECCION -->
+<div class="tab-panel" id="tab-proyeccion">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-section">🔮 Parámetros de Proyección</div>
+      <div class="field" style="margin-bottom:12px">
+        <label>Mejora esperada en margen/día (%)</label>
+        <div class="proj-slider-wrap">
+          <span style="font-size:0.8rem;color:var(--muted)">-20%</span>
+          <input type="range" id="proj-slider" min="-20" max="20" value="0" step="1" oninput="onSliderChange()">
+          <span style="font-size:0.8rem;color:var(--muted)">+20%</span>
+          <strong id="proj-slider-val" style="min-width:40px;text-align:right;color:var(--maroon)">0%</strong>
+        </div>
+        <span class="hint">Ajuste respecto al margen diario actual calculado</span>
+      </div>
+      <div id="proj-summary-card" style="background:var(--cream);border-radius:8px;padding:12px 14px;font-size:0.88rem">
+        <div id="proj-summary-text" style="color:var(--muted)">Calcula KPIs primero para ver la proyección</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-section">📊 Leyenda</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:0.82rem">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:4px;background:#2e7d32;display:inline-block;border-radius:2px"></span><strong>Optimista</strong> (+15% sobre base)</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:4px;background:#1b3a5c;display:inline-block;border-radius:2px"></span><strong>Base</strong> (ritmo actual con ajuste)</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:4px;background:#a33;display:inline-block;border-radius:2px"></span><strong>Pesimista</strong> (-15% sobre base)</div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:24px;height:4px;background:#c9a227;border-top:2px dashed #c9a227;display:inline-block;border-radius:2px"></span><strong>Meta $20M</strong></div>
+        <hr class="sep">
+        <div style="color:var(--muted)">La línea horizontal punteada indica la meta. Donde las curvas cruzan esa línea, el simulador llega a $20M.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-section">📈 Curva de Utilidad Proyectada</div>
+    <canvas id="proj-canvas"></canvas>
+  </div>
+  <div class="card">
+    <div class="card-section">📋 Tabla de Proyección (cada 20 días virtuales)</div>
+    <div style="overflow-x:auto">
+      <table class="proj-table" id="proj-table">
+        <thead><tr>
+          <th>Día Virtual</th><th>Optimista</th><th>Base</th><th>Pesimista</th><th>¿Alcanza Meta?</th>
+        </tr></thead>
+        <tbody id="proj-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: ENTRADA -->
+<div class="tab-panel" id="tab-entrada">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-section">📥 Ingresar Datos de la Ronda</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Ronda #</label>
+          <input type="number" id="in-ronda" value="1" min="1" max="72">
+          <span class="hint">Cada hora = 1 ronda (72 rondas totales)</span>
+        </div>
+        <div class="field">
+          <label>Día Virtual Actual</label>
+          <input type="number" id="in-dia" value="50" min="50" max="292">
+          <span class="hint">Días jugados hasta ahora (inicia en 50)</span>
+        </div>
+        <div class="field">
+          <label>Utilidad Acumulada ($)</label>
+          <input type="number" id="in-util" value="0" min="0">
+          <span class="hint">Utilidad total mostrada en el simulador</span>
+        </div>
+        <div class="field">
+          <label>MCE Total (u/día)</label>
+          <input type="number" id="in-mce" value="1200" min="100" max="3000">
+          <span class="hint">Capacidad total del cuello de botella</span>
+        </div>
+        <div class="field">
+          <label>ERLE (u/día)</label>
+          <input type="number" id="in-erle" value="450" min="100" max="2000">
+          <span class="hint">Segundo CCN en línea Standard</span>
+        </div>
+        <div class="field">
+          <label>MCE% Asignado a Custom</label>
+          <input type="number" id="in-mcepct" value="73" min="0" max="100">
+          <span class="hint">% del MCE dedicado a línea Custom</span>
+        </div>
+      </div>
+      <hr class="sep">
+      <div class="card-section" style="margin-top:4px">Precios y Costos</div>
+      <div class="form-grid">
+        <div class="field"><label>Precio Custom ($/u)</label><input type="number" id="in-pc" value="52" min="1"></div>
+        <div class="field"><label>Precio Standard ($/u)</label><input type="number" id="in-ps" value="31" min="1"></div>
+        <div class="field"><label>CV Custom ($/u)</label><input type="number" id="in-cvc" value="19" min="1"></div>
+        <div class="field"><label>CV Standard ($/u)</label><input type="number" id="in-cvs" value="14" min="1"></div>
+        <div class="field"><label>Demanda Custom (u/día)</label><input type="number" id="in-dc" value="950" min="0"></div>
+        <div class="field"><label>Demanda Standard (u/día)</label><input type="number" id="in-ds" value="420" min="0"></div>
+      </div>
+      <hr class="sep">
+      <div class="card-section" style="margin-top:4px">Inventario</div>
+      <div class="form-grid">
+        <div class="field"><label>WIP Custom (u)</label><input type="number" id="in-wip-c" value="0" min="0"></div>
+        <div class="field"><label>Stock PT Standard (u)</label><input type="number" id="in-stock-s" value="0" min="0"></div>
+        <div class="field"><label>MP Custom en mano (u)</label><input type="number" id="in-mp-c" value="0" min="0"></div>
+        <div class="field"><label>MP Standard en mano (u)</label><input type="number" id="in-mp-s" value="0" min="0"></div>
+        <div class="field"><label>σ Demanda Custom (u/día)</label><input type="number" id="in-sigma-c" value="80" min="0"><span class="hint">Desv. estándar demanda Custom</span></div>
+        <div class="field"><label>σ Demanda Standard (u/día)</label><input type="number" id="in-sigma-s" value="40" min="0"></div>
+      </div>
+      <hr class="sep">
+      <div class="card-section" style="margin-top:4px">🏭 Expansión de Capacidad (opcional)</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Costo de nueva máquina ($)</label>
+          <input type="number" id="in-maq-cost" value="0" min="0">
+          <span class="hint">Costo total de comprar maquinaria adicional</span>
+        </div>
+        <div class="field">
+          <label>Capacidad adicional (u/día MCE)</label>
+          <input type="number" id="in-maq-cap" value="0" min="0">
+          <span class="hint">Unidades/día extra que daría la nueva máquina</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="calcular()">⚡ Calcular KPIs</button>
+        <button class="btn btn-gold" onclick="guardarRonda()">💾 Guardar Ronda</button>
+        <button class="btn btn-outline btn-sm" onclick="resetForm()">↺ Reiniciar</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="rec-box" id="rec-box">
+        <div class="rec-title">🎯 Recomendaciones para Esta Ronda</div>
+        <div id="rec-content">
+          <div class="rec-item"><div class="rec-icon">💡</div><div class="rec-text">Ingresa los datos y presiona <strong>Calcular KPIs</strong> para ver las recomendaciones personalizadas.</div></div>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-bottom:0">
+        <div class="kpi-tile" id="kpi-prod-c-tile"><div class="kpi-name">Prod. Custom</div><div class="kpi-value" id="kpi-prod-c">—</div><div class="kpi-unit">unidades/día</div><div class="kpi-formula">MCE × MCE%</div><div class="kpi-target" id="kpi-prod-c-tgt"></div></div>
+        <div class="kpi-tile" id="kpi-prod-s-tile"><div class="kpi-name">Prod. Standard</div><div class="kpi-value" id="kpi-prod-s">—</div><div class="kpi-unit">unidades/día</div><div class="kpi-formula">MIN(MCE×(1−MCE%), ERLE)</div><div class="kpi-target" id="kpi-prod-s-tgt"></div></div>
+        <div class="kpi-tile" id="kpi-margen-tile"><div class="kpi-name">Margen Total/día</div><div class="kpi-value" id="kpi-margen">—</div><div class="kpi-unit">$/día</div><div class="kpi-formula">$MC×ProdC + $MS×ProdS</div><div class="kpi-target" id="kpi-margen-tgt"></div></div>
+        <div class="kpi-tile" id="kpi-dias-tile"><div class="kpi-name">Días Restantes</div><div class="kpi-value" id="kpi-dias">—</div><div class="kpi-unit">días virtuales</div><div class="kpi-formula">292 − Día Actual</div><div class="kpi-target">Meta: ≥ 242</div></div>
+      </div>
+      <div id="alerts-zone"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: KPIs -->
+<div class="tab-panel" id="tab-kpis">
+  <div class="grid-4">
+    <div class="kpi-tile" id="kpi2-prod-c-tile"><div class="kpi-name">Producción Custom</div><div class="kpi-value" id="kpi2-prod-c">—</div><div class="kpi-unit">u/día · Línea MTO</div><div class="kpi-formula">MCE_total × MCE%</div><div class="kpi-def"><strong>Definición:</strong> Unidades de producto customizado que el MCE puede producir por día con la asignación actual. La línea va MCE→AMA→PLU.</div><div class="kpi-target" id="kpi2-prod-c-tgt">Óptimo: maximizar dentro de restricciones</div></div>
+    <div class="kpi-tile" id="kpi2-prod-s-tile"><div class="kpi-name">Producción Standard</div><div class="kpi-value" id="kpi2-prod-s">—</div><div class="kpi-unit">u/día · Línea MTS</div><div class="kpi-formula">MIN(MCE×(1−MCE%), ERLE)</div><div class="kpi-def"><strong>Definición:</strong> Unidades standard producidas. Tiene dos restricciones: MCE (compartido) y ERLE (450 u/día). La línea va MCE→Batching→ERLE.</div><div class="kpi-target">Óptimo: ERLE fully utilizado = 450 u/día</div></div>
+    <div class="kpi-tile" id="kpi2-mc-c-tile"><div class="kpi-name">Margen Contrib. Custom</div><div class="kpi-value" id="kpi2-mc-c">$33/u</div><div class="kpi-unit">$/unidad</div><div class="kpi-formula">Precio_C − CV_C</div><div class="kpi-def"><strong>Definición:</strong> Ganancia marginal por unidad Custom vendida antes de costos fijos.</div><div class="kpi-target" id="kpi2-mc-c-tgt">Actual: $52 − $19 = $33/u</div></div>
+    <div class="kpi-tile" id="kpi2-mc-s-tile"><div class="kpi-name">Margen Contrib. Standard</div><div class="kpi-value" id="kpi2-mc-s">$17/u</div><div class="kpi-unit">$/unidad</div><div class="kpi-formula">Precio_S − CV_S</div><div class="kpi-def"><strong>Definición:</strong> Ganancia marginal por unidad Standard. Menor que Custom pero usa recurso sobrante del MCE.</div><div class="kpi-target" id="kpi2-mc-s-tgt">Actual: $31 − $14 = $17/u</div></div>
+    <div class="kpi-tile" id="kpi2-margen-tile"><div class="kpi-name">Margen Total / Día</div><div class="kpi-value" id="kpi2-margen">—</div><div class="kpi-unit">$/día</div><div class="kpi-formula">MC_C×Prod_C + MC_S×Prod_S</div><div class="kpi-def"><strong>Definición:</strong> Contribución de margen total diaria. Para alcanzar $20M en 242 días se necesitan ≥$82,645/día promedio.</div><div class="kpi-target" id="kpi2-margen-tgt">Meta mínima: $82,645/día</div></div>
+    <div class="kpi-tile" id="kpi2-tt-tile"><div class="kpi-name">Throughput Time Custom</div><div class="kpi-value" id="kpi2-tt">—</div><div class="kpi-unit">días · Ley de Little</div><div class="kpi-formula">TT = WIP / λ</div><div class="kpi-def"><strong>Definición:</strong> Tiempo promedio que tarda una orden Custom desde inicio hasta entrega. Alto WIP = entrega lenta.</div><div class="kpi-target">Óptimo: &lt; 2 días (WIP bajo)</div></div>
+    <div class="kpi-tile" id="kpi2-mce-pct-tile"><div class="kpi-name">MCE% Óptimo</div><div class="kpi-value" id="kpi2-mce-pct">—</div><div class="kpi-unit">% al Custom</div><div class="kpi-formula">argmax[MC_C×MCE×p + MC_S×MIN(MCE×(1−p),ERLE)]</div><div class="kpi-def"><strong>Definición:</strong> Porcentaje del MCE que maximiza el Margen Total. Calculado por búsqueda de 1% en 1%.</div><div class="kpi-target">Solver calcula el óptimo exacto</div></div>
+    <div class="kpi-tile" id="kpi2-efic-tile"><div class="kpi-name">Eficiencia MCE</div><div class="kpi-value" id="kpi2-efic">—</div><div class="kpi-unit">% utilización</div><div class="kpi-formula">(Prod_C + Prod_S) / MCE_total</div><div class="kpi-def"><strong>Definición:</strong> Porcentaje de la capacidad total del MCE que se está utilizando. Siempre debe ser 100%.</div><div class="kpi-target">Óptimo: 100% (sin capacidad ociosa)</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-section">📐 Parámetros del Sistema</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <tr><td style="padding:5px 4px;color:var(--muted)">MCE Total</td><td style="text-align:right;font-weight:700" id="p-mce">1,200 u/día</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">ERLE</td><td style="text-align:right;font-weight:700" id="p-erle">450 u/día</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">MCE% actual</td><td style="text-align:right;font-weight:700" id="p-mcepct">—</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Lead Time (L)</td><td style="text-align:right">4 días</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Nivel servicio (z)</td><td style="text-align:right">1.28 (90%)</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Días totales</td><td style="text-align:right">292</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Días jugados</td><td style="text-align:right" id="p-dia">50</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Días restantes</td><td style="text-align:right" id="p-diasr">242</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-section">💹 Meta $20M: Desglose</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <tr><td style="padding:5px 4px;color:var(--muted)">Meta total</td><td style="text-align:right;font-weight:700">$20,000,000</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Acumulado</td><td style="text-align:right;font-weight:700;color:var(--green)" id="m-acum">$0</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Faltante</td><td style="text-align:right;font-weight:700;color:var(--red)" id="m-falta">$20,000,000</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Días restantes</td><td style="text-align:right" id="m-diasr">242</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Meta diaria requerida</td><td style="text-align:right;font-weight:700;color:var(--amber)" id="m-daily">$82,645</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Margen actual/día</td><td style="text-align:right;font-weight:700" id="m-current">—</td></tr>
+        <tr><td style="padding:5px 4px;color:var(--muted)">Estado</td><td style="text-align:right" id="m-status">—</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: SOLVER -->
+<div class="tab-panel" id="tab-solver">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-section">🔧 Solver: MCE% Óptimo</div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:10px">Búsqueda exhaustiva de 1% en 1%. La TOC dice: subordina todo al cuello de botella (MCE). El objetivo es maximizar el Margen Total diario.</p>
+      <div class="alert alert-green" id="solver-opt-box">Calcula los KPIs primero para ver el óptimo →</div>
+      <div style="margin-top:10px">
+        <strong style="font-size:0.82rem">📐 Fórmula del Margen Total:</strong>
+        <div style="background:#f0e8d0;border-radius:6px;padding:8px 12px;margin-top:6px;font-family:'Courier New',monospace;font-size:0.8rem;line-height:1.7">
+          M(p) = MC_C × [MCE × p] + MC_S × MIN[MCE × (1−p), ERLE]<br>donde p = MCE% / 100<br><br>
+          MC_C = Precio_C − CV_C<br>MC_S = Precio_S − CV_S<br>ERLE = 450 u/día (segunda restricción)<br><br>
+          <strong>Insight TOC:</strong> Aumentar Custom (+1%) → más $/día siempre que Standard tenga holgura en ERLE
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-section">📋 Tabla Solver (1% → 99%)</div>
+      <div class="tbl-wrap">
+        <table class="solver-table" id="solver-table">
+          <thead><tr><th>MCE%</th><th>Prod_C</th><th>Prod_S</th><th>MC_C</th><th>MC_S</th><th>Margen Total</th></tr></thead>
+          <tbody id="solver-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: SISTEMA Q -->
+<div class="tab-panel" id="tab-sistemaq">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-section">📦 Sistema Q — Línea Custom (MTO)</div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:10px">Revisión continua. Se ordena cantidad fija Q cuando inventario cae al punto de reorden R.</p>
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <tr style="background:var(--cream)"><th style="text-align:left;padding:6px 8px">Parámetro</th><th style="text-align:left;padding:6px 8px">Fórmula</th><th style="text-align:right;padding:6px 8px">Valor</th></tr>
+        <tr><td style="padding:5px 8px">d̄ Custom</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">demanda promedio</td><td style="text-align:right;font-weight:700" id="q-dc">—</td></tr>
+        <tr><td style="padding:5px 8px">σ Custom</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">desv. estándar</td><td style="text-align:right;font-weight:700" id="q-sc">—</td></tr>
+        <tr><td style="padding:5px 8px">L (lead time)</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">días hasta recibir MP</td><td style="text-align:right">4 días</td></tr>
+        <tr><td style="padding:5px 8px">SS Custom</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">z × σ × √L</td><td style="text-align:right;font-weight:700;color:var(--blue)" id="q-ss-c">—</td></tr>
+        <tr><td style="padding:5px 8px">R Custom</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">d̄ × L + SS</td><td style="text-align:right;font-weight:700;color:var(--maroon)" id="q-r-c">—</td></tr>
+        <tr><td style="padding:5px 8px">MP en mano</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">inventario actual</td><td style="text-align:right;font-weight:700" id="q-inv-c">—</td></tr>
+      </table>
+      <div class="alert mt8" id="q-alert-c">Ingresa datos para ver alerta</div>
+      <div class="note mt8"><strong>SS = z×σ×√L</strong>: Stock de seguridad (z=1.28, L=4 días). <strong>R = d̄×L + SS</strong>: Si inventario ≤ R, se debe pedir HOY.</div>
+    </div>
+    <div class="card">
+      <div class="card-section">📦 Sistema Q — Línea Standard (MTS)</div>
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:10px">Make-to-Stock: producción en batches. El inventario de PT sirve como buffer de demanda inmediata.</p>
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+        <tr style="background:var(--cream)"><th style="text-align:left;padding:6px 8px">Parámetro</th><th style="text-align:left;padding:6px 8px">Fórmula</th><th style="text-align:right;padding:6px 8px">Valor</th></tr>
+        <tr><td style="padding:5px 8px">d̄ Standard</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">demanda promedio</td><td style="text-align:right;font-weight:700" id="q-ds">—</td></tr>
+        <tr><td style="padding:5px 8px">σ Standard</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">desv. estándar</td><td style="text-align:right;font-weight:700" id="q-ss2">—</td></tr>
+        <tr><td style="padding:5px 8px">L (lead time)</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">días hasta recibir MP</td><td style="text-align:right">4 días</td></tr>
+        <tr><td style="padding:5px 8px">SS Standard</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">z × σ × √L</td><td style="text-align:right;font-weight:700;color:var(--blue)" id="q-ss-s">—</td></tr>
+        <tr><td style="padding:5px 8px">R Standard</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">d̄ × L + SS</td><td style="text-align:right;font-weight:700;color:var(--maroon)" id="q-r-s">—</td></tr>
+        <tr><td style="padding:5px 8px">Stock PT en mano</td><td style="padding:5px 8px;color:var(--muted);font-family:monospace;font-size:0.75rem">inventario PT actual</td><td style="text-align:right;font-weight:700" id="q-inv-s">—</td></tr>
+      </table>
+      <div class="alert mt8" id="q-alert-s">Ingresa datos para ver alerta</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:0">
+    <div class="card-section">📐 Ley de Little — Análisis de Flujo Custom</div>
+    <div class="grid-2" style="margin-bottom:0">
+      <div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.82rem">
+          <tr><td style="padding:5px 4px;color:var(--muted)">WIP Custom (u)</td><td style="text-align:right;font-weight:700" id="ll-wip">—</td></tr>
+          <tr><td style="padding:5px 4px;color:var(--muted)">λ = Prod Custom (u/día)</td><td style="text-align:right;font-weight:700" id="ll-lambda">—</td></tr>
+          <tr><td style="padding:5px 4px;color:var(--muted)">TT = WIP / λ (días)</td><td style="text-align:right;font-weight:700;color:var(--maroon)" id="ll-tt">—</td></tr>
+        </table>
+        <div class="note mt8"><strong>Ley de Little:</strong> TT = WIP / λ. Un WIP alto aumenta el tiempo de entrega, lo que puede reducir el precio que cobra Custom. Mantén el WIP bajo.</div>
+      </div>
+      <div><div class="alert" id="ll-alert">Calcula KPIs primero</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: HISTORIAL -->
+<div class="tab-panel" id="tab-historial">
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-section flex-between">
+        <span>📈 Historial de Rondas</span>
+        <button class="btn btn-outline btn-sm" onclick="limpiarHistorial()">🗑 Limpiar</button>
+      </div>
+      <div class="hist-wrap">
+        <table class="hist-table" id="hist-table">
+          <thead><tr><th>Ronda</th><th>Día</th><th>MCE%</th><th>Prod C</th><th>Prod S</th><th>Margen/día</th><th>Acumulado</th></tr></thead>
+          <tbody id="hist-body"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px">No hay rondas guardadas aún</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-section">📊 Margen Diario por Ronda</div>
+      <canvas class="spark" id="sparkline"></canvas>
+      <div class="note mt8" id="spark-note">El gráfico se actualiza al guardar rondas.</div>
+      <hr class="sep">
+      <div class="card-section">📊 Estadísticas del Historial</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.82rem" id="stats-table">
+        <tr><td style="padding:4px 4px;color:var(--muted)">Rondas guardadas</td><td style="text-align:right;font-weight:700" id="s-rounds">0</td></tr>
+        <tr><td style="padding:4px 4px;color:var(--muted)">Margen promedio/día</td><td style="text-align:right;font-weight:700" id="s-avg">—</td></tr>
+        <tr><td style="padding:4px 4px;color:var(--muted)">Mejor ronda</td><td style="text-align:right;font-weight:700;color:var(--green)" id="s-best">—</td></tr>
+        <tr><td style="padding:4px 4px;color:var(--muted)">Peor ronda</td><td style="text-align:right;font-weight:700;color:var(--red)" id="s-worst">—</td></tr>
+        <tr><td style="padding:4px 4px;color:var(--muted)">Tendencia</td><td style="text-align:right;font-weight:700" id="s-trend">—</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: WHATSAPP -->
+<div class="tab-panel" id="tab-whatsapp">
+  <div class="card">
+    <div class="card-section flex-between">
+      <span>💬 Mensaje WhatsApp para el Equipo</span>
+      <button class="btn btn-green btn-sm" onclick="copiarWA()">📋 Copiar Mensaje</button>
+    </div>
+    <div class="wa-box">
+      <div class="wa-title">📲 Copia y pega en el grupo de WhatsApp del equipo:</div>
+      <pre class="wa-pre" id="wa-msg">Calcula los KPIs primero para generar el mensaje...</pre>
+    </div>
+    <div class="note mt8">El mensaje se genera automáticamente al calcular los KPIs. Incluye estado del Sistema Q y recomendación de MCE%.</div>
+  </div>
+</div>
+
+<div class="note" style="text-align:center;margin-top:14px">
+  Distribución autorizada exclusivamente para Mateo Sebastián Mizco Pintado · Gerencia de Operaciones (MiMIT-2027 | 26-09) · INCAE Business School, 2026
+</div>
+
+<script>
+const META = 20000000, L = 4, Z = 1.28, DIAS_TOTAL = 292;
+let state = { rondas: [], lastCalc: null };
+try { const s = localStorage.getItem('medica_sim_state'); if (s) { const p = JSON.parse(s); if (p && p.rondas) state = p; } } catch(e){}
+function saveState() { try { localStorage.setItem('medica_sim_state', JSON.stringify(state)); } catch(e){} }
+
+const fmt = (n,d=0) => n==null||isNaN(n)?'—':new Intl.NumberFormat('es-CR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(n);
+const fmtD = n => n==null||isNaN(n)?'—':'$'+fmt(n,0);
+function el(id){return document.getElementById(id)}
+function cls(e,...add){if(!e)return;e.classList.remove('good','warn','bad');add.forEach(c=>c&&e.classList.add(c))}
+
+// TABS
+function showTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el('tab-'+id)?.classList.add('active');
+  [...document.querySelectorAll('.tab')].find(t=>t.getAttribute('onclick')?.includes("'"+id+"'"))?.classList.add('active');
+}
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// CALC
+function calcular() {
+  const mce = +el('in-mce').value||1200;
+  const erle = +el('in-erle').value||450;
+  const mcePct = +el('in-mcepct').value||73;
+  const pc = +el('in-pc').value||52;
+  const ps = +el('in-ps').value||31;
+  const cvc = +el('in-cvc').value||19;
+  const cvs = +el('in-cvs').value||14;
+  const dc = +el('in-dc').value||950;
+  const ds = +el('in-ds').value||420;
+  const sigmaC = +el('in-sigma-c').value||80;
+  const sigmaS = +el('in-sigma-s').value||40;
+  const wipC = +el('in-wip-c').value||0;
+  const stockS = +el('in-stock-s').value||0;
+  const mpC = +el('in-mp-c').value||0;
+  const mpS = +el('in-mp-s').value||0;
+  const diaActual = +el('in-dia').value||50;
+  const util = +el('in-util').value||0;
+  const ronda = +el('in-ronda').value||1;
+  const maqCost = +el('in-maq-cost').value||0;
+  const maqCap = +el('in-maq-cap').value||0;
+
+  const mcC = pc - cvc, mcS = ps - cvs;
+  const prodC = mce * (mcePct/100);
+  const prodS = Math.min(mce * (1 - mcePct/100), erle);
+  const margen = mcC * prodC + mcS * prodS;
+  const diasRest = DIAS_TOTAL - diaActual;
+  const faltante = Math.max(0, META - util);
+  const metaDiaria = diasRest > 0 ? faltante / diasRest : 0;
+  const efic = (prodC + prodS) / mce * 100;
+  const lambda = prodC, tt = lambda > 0 ? wipC / lambda : 0;
+  const ssC = Z * sigmaC * Math.sqrt(L), rC = dc * L + ssC;
+  const ssS = Z * sigmaS * Math.sqrt(L), rS = ds * L + ssS;
+
+  let bestPct = 0, bestM = -Infinity;
+  for (let p = 1; p <= 99; p++) {
+    const pC = mce * (p/100), pS = Math.min(mce * (1-p/100), erle);
+    const m = mcC * pC + mcS * pS;
+    if (m > bestM) { bestM = m; bestPct = p; }
+  }
+
+  state.lastCalc = { mce, erle, mcePct, pc, ps, cvc, cvs, dc, ds, sigmaC, sigmaS,
+    wipC, stockS, mpC, mpS, diaActual, util, ronda, mcC, mcS, prodC, prodS,
+    margen, diasRest, faltante, metaDiaria, efic, lambda, tt, ssC, rC, ssS, rS,
+    bestPct, bestM, maqCost, maqCap };
+
+  actualizarUI(state.lastCalc);
+  buildSolverTable(mce, erle, mcC, mcS, bestPct);
+  buildWA(state.lastCalc);
+  buildPlanAccion(state.lastCalc);
+  buildProyeccion(state.lastCalc);
+  buildExecBanner(state.lastCalc);
+}
+
+function actualizarUI(c) {
+  const pct = Math.min(100, (c.util / META) * 100);
+  el('goal-pct').textContent = pct.toFixed(1)+'%';
+  el('goal-fill').style.width = pct+'%';
+  el('goal-acum').textContent = fmtD(c.util);
+  el('goal-falta').textContent = fmtD(c.faltante);
+  el('goal-daily').textContent = 'Meta/día req: '+fmtD(c.metaDiaria);
+  el('hdr-day').textContent = c.diaActual;
+  el('hdr-ronda').textContent = c.ronda;
+
+  el('kpi-prod-c').textContent = fmt(c.prodC,0);
+  el('kpi-prod-s').textContent = fmt(c.prodS,0);
+  el('kpi-margen').textContent = fmtD(c.margen);
+  el('kpi-dias').textContent = fmt(c.diasRest,0);
+  const colorM = c.margen >= 82645 ? 'good' : c.margen >= c.metaDiaria*0.85 ? 'warn' : 'bad';
+  cls(el('kpi-margen-tile'), colorM);
+  el('kpi-margen-tgt').textContent = 'Meta: '+fmtD(c.metaDiaria)+'/día';
+
+  el('kpi2-prod-c').textContent = fmt(c.prodC,0);
+  el('kpi2-prod-s').textContent = fmt(c.prodS,0);
+  el('kpi2-mc-c').textContent = fmtD(c.mcC)+'/u';
+  el('kpi2-mc-s').textContent = fmtD(c.mcS)+'/u';
+  el('kpi2-mc-c-tgt').textContent = `Actual: $${c.pc} − $${c.cvc} = $${c.mcC}/u`;
+  el('kpi2-mc-s-tgt').textContent = `Actual: $${c.ps} − $${c.cvs} = $${c.mcS}/u`;
+  el('kpi2-margen').textContent = fmtD(c.margen);
+  el('kpi2-margen-tgt').textContent = 'Meta mínima: '+fmtD(c.metaDiaria)+'/día';
+  el('kpi2-tt').textContent = c.tt > 0 ? c.tt.toFixed(2)+' días' : '—';
+  el('kpi2-mce-pct').textContent = c.bestPct+'%';
+  el('kpi2-efic').textContent = c.efic.toFixed(1)+'%';
+  cls(el('kpi2-efic-tile'), c.efic >= 99?'good':c.efic>=90?'warn':'bad');
+  cls(el('kpi2-margen-tile'), colorM);
+  cls(el('kpi2-tt-tile'), c.tt<1?'good':c.tt<3?'warn':'bad');
+
+  el('p-mce').textContent = fmt(c.mce)+' u/día';
+  el('p-erle').textContent = fmt(c.erle)+' u/día';
+  el('p-mcepct').textContent = c.mcePct+'%';
+  el('p-dia').textContent = c.diaActual;
+  el('p-diasr').textContent = c.diasRest;
+  el('m-acum').textContent = fmtD(c.util);
+  el('m-falta').textContent = fmtD(c.faltante);
+  el('m-diasr').textContent = c.diasRest;
+  el('m-daily').textContent = fmtD(c.metaDiaria);
+  el('m-current').textContent = fmtD(c.margen);
+  const statusOk = c.margen >= c.metaDiaria;
+  el('m-status').innerHTML = statusOk
+    ? '<span class="tag tag-green">✅ En meta</span>'
+    : '<span class="tag tag-red">⚠️ Bajo meta</span>';
+
+  el('q-dc').textContent = fmt(c.dc)+' u/día';
+  el('q-sc').textContent = fmt(c.sigmaC)+' u/día';
+  el('q-ss-c').textContent = fmt(c.ssC,0)+' u';
+  el('q-r-c').textContent = fmt(c.rC,0)+' u';
+  el('q-inv-c').textContent = fmt(c.mpC)+' u';
+  el('q-ds').textContent = fmt(c.ds)+' u/día';
+  el('q-ss2').textContent = fmt(c.sigmaS)+' u/día';
+  el('q-ss-s').textContent = fmt(c.ssS,0)+' u';
+  el('q-r-s').textContent = fmt(c.rS,0)+' u';
+  el('q-inv-s').textContent = fmt(c.stockS)+' u';
+
+  const qAC = el('q-alert-c');
+  if (c.mpC <= c.rC) { qAC.className='alert alert-red mt8'; qAC.textContent='🚨 PEDIR HOY — MP Custom: '+fmt(c.mpC)+' u ≤ R='+fmt(c.rC,0)+' u'; }
+  else { qAC.className='alert alert-green mt8'; qAC.textContent='✅ ESPERAR — MP Custom: '+fmt(c.mpC)+' u > R='+fmt(c.rC,0)+' u'; }
+  const qAS = el('q-alert-s');
+  if (c.stockS <= c.rS) { qAS.className='alert alert-red mt8'; qAS.textContent='🚨 PEDIR HOY — Stock PT Standard: '+fmt(c.stockS)+' u ≤ R='+fmt(c.rS,0)+' u'; }
+  else { qAS.className='alert alert-green mt8'; qAS.textContent='✅ ESPERAR — Stock PT Standard: '+fmt(c.stockS)+' u > R='+fmt(c.rS,0)+' u'; }
+
+  el('ll-wip').textContent = fmt(c.wipC)+' u';
+  el('ll-lambda').textContent = fmt(c.lambda)+' u/día';
+  el('ll-tt').textContent = c.tt > 0 ? c.tt.toFixed(2)+' días' : '—';
+  const llA = el('ll-alert');
+  if (c.tt>3){llA.className='alert alert-red';llA.textContent='⚠️ WIP alto: TT='+c.tt.toFixed(1)+' días — reduce WIP para mejorar precio Custom';}
+  else if(c.tt>1){llA.className='alert alert-amber';llA.textContent='⚡ TT moderado: '+c.tt.toFixed(1)+' días — monitorea WIP';}
+  else{llA.className='alert alert-green';llA.textContent='✅ TT óptimo: '+(c.tt>0?c.tt.toFixed(2):'N/A')+' días — flujo fluido';}
+
+  el('solver-opt-box').className='alert alert-green';
+  el('solver-opt-box').textContent=`🏆 MCE% Óptimo = ${c.bestPct}% → Margen Máximo = ${fmtD(c.bestM)}/día`;
+  buildRecommendations(c);
+  buildAlerts(c);
+}
+
+function buildExecBanner(c) {
+  const needMCE = c.mcePct !== c.bestPct;
+  const needMPC = c.mpC <= c.rC;
+  const needMPS = c.stockS <= c.rS;
+  const projBase = c.util + c.margen * c.diasRest;
+
+  let html = `<div class="exec-section">
+    <span style="font-size:0.72rem;opacity:0.7;color:white">MCE% ÓPTIMO</span>
+    <span class="exec-badge exec-badge-gold">${c.bestPct}%${needMCE ? ' ← CAMBIAR DE '+c.mcePct+'%' : ' ✅'}</span>
+  </div>
+  <div class="exec-sep"></div>
+  <div class="exec-section">
+    <span style="font-size:0.72rem;opacity:0.7;color:white">MP CUSTOM</span>
+    <span class="exec-badge ${needMPC?'exec-badge-red':'exec-badge-green'}">${needMPC?'🚨 PEDIR HOY':'✅ OK'}</span>
+    <span style="font-size:0.72rem;opacity:0.7;color:white">MP STANDARD</span>
+    <span class="exec-badge ${needMPS?'exec-badge-red':'exec-badge-green'}">${needMPS?'🚨 PEDIR HOY':'✅ OK'}</span>
+  </div>
+  <div class="exec-sep"></div>
+  <div class="exec-section">
+    <span style="font-size:0.72rem;opacity:0.7;color:white">PROYECCIÓN DÍA 292</span>
+    <span class="exec-badge ${projBase>=META?'exec-badge-green':'exec-badge-gray'}">${fmtD(projBase)}</span>
+  </div>`;
+  el('exec-banner').innerHTML = html;
+}
+
+function buildPlanAccion(c) {
+  el('plan-empty').style.display = 'none';
+  el('plan-content').style.display = 'block';
+
+  // SECTION A
+  const card = el('plan-action-card');
+  const needMCE = c.mcePct !== c.bestPct;
+  const needMPC = c.mpC <= c.rC;
+  const needMPS = c.stockS <= c.rS;
+  card.className = 'action-card-big ' + (needMCE || needMPC || needMPS ? 'urgent' : 'optimal');
+  el('plan-action-icon').textContent = needMCE || needMPC || needMPS ? '🚨' : '✅';
+
+  let cmd = '', sub = '';
+  if (needMCE) {
+    const gain = c.bestM - c.margen;
+    cmd = `PON MCE% A ${c.bestPct}%`;
+    sub = `Estás en ${c.mcePct}% — cambiar a ${c.bestPct}% te da +${fmtD(gain)}/día extra. Acción inmediata en el simulador.`;
+  } else if (needMPC && needMPS) {
+    cmd = 'PIDE MP CUSTOM Y STANDARD HOY';
+    sub = `Ambas líneas están en zona de reorden. Custom: ${fmt(c.mpC)}u ≤ R=${fmt(c.rC,0)}u · Standard: ${fmt(c.stockS)}u ≤ R=${fmt(c.rS,0)}u`;
+  } else if (needMPC) {
+    cmd = 'PIDE MP CUSTOM HOY';
+    sub = `Inventario Custom: ${fmt(c.mpC)} u ≤ Punto de reorden R=${fmt(c.rC,0)} u. Stock de seguridad: ${fmt(c.ssC,0)} u.`;
+  } else if (needMPS) {
+    cmd = 'PIDE MP STANDARD HOY';
+    sub = `Stock PT Standard: ${fmt(c.stockS)} u ≤ Punto de reorden R=${fmt(c.rS,0)} u. Riesgo de quiebre.`;
+  } else {
+    cmd = 'MANTÉN — Todo está óptimo';
+    sub = `MCE% correcto (${c.bestPct}%), inventarios OK. Margen actual: ${fmtD(c.margen)}/día · Meta: ${fmtD(c.metaDiaria)}/día`;
+  }
+  el('plan-action-cmd').textContent = cmd;
+  el('plan-action-sub').textContent = sub;
+
+  // SECTION B — Maquinaria
+  const mcBest = c.bestM;
+  const onMeta = c.margen >= c.metaDiaria;
+  let maqDec = '', maqReason = '', roiHtml = '';
+  if (onMeta) {
+    maqDec = '🟢 NO COMPRES MAQUINARIA — ya alcanzas la meta con capacidad actual';
+    maqReason = `Tu margen actual ${fmtD(c.margen)}/día ya supera la meta diaria requerida de ${fmtD(c.metaDiaria)}/día. Comprar maquinaria cuesta capital sin necesidad real ahora mismo.`;
+  } else if (c.diasRest > 100) {
+    maqDec = '🔍 ANALIZA COMPRAR MAQUINARIA — tienes días suficientes para recuperar la inversión';
+    maqReason = `Quedan ${c.diasRest} días (>100). Si hay opción de expansión en el simulador, evalúa si el ROI justifica el costo.`;
+  } else {
+    maqDec = '🔴 NO COMPRES MAQUINARIA — quedan muy pocos días para recuperar la inversión fija';
+    maqReason = `Solo quedan ${c.diasRest} días. Cualquier inversión fija en maquinaria es difícil de recuperar. Optimiza el MCE% que tienes (actualmente ${c.bestPct}%).`;
+  }
+
+  if (c.maqCost > 0 && c.maqCap > 0) {
+    const extraMargen = c.mcC * c.maqCap * (c.bestPct/100);
+    const paybackDays = extraMargen > 0 ? (c.maqCost / extraMargen).toFixed(1) : '∞';
+    const roi = c.diasRest > 0 ? (extraMargen * c.diasRest - c.maqCost) : -c.maqCost;
+    roiHtml = `Máquina: <strong>${fmtD(c.maqCost)}</strong> · Capacidad adicional: <strong>${fmt(c.maqCap)} u/día MCE</strong><br>
+      Ganancia extra/día ≈ $${c.mcC}/u × ${fmt(c.maqCap)} u × ${c.bestPct}% = <strong>${fmtD(extraMargen)}/día</strong><br>
+      Payback: <strong>${paybackDays} días</strong> · ROI en ${c.diasRest} días restantes: <strong style="color:${roi>0?'var(--green)':'var(--red)'}">= ${fmtD(roi)}</strong><br>
+      <span style="color:var(--muted)">Decisión: ${roi>0 && +paybackDays<c.diasRest ? '✅ ROI positivo, considera comprar' : '❌ No recuperas inversión a tiempo'}</span>`;
+  } else {
+    roiHtml = `Si una máquina cuesta <strong>$X</strong> y aumenta MCE en <strong>Y u/día</strong>:<br>
+      Ganancia extra = MC_C × Y × MCE% = <strong>$Z/día</strong><br>
+      Recuperas en <strong>X/Z días</strong><br>
+      <span style="color:var(--muted)">→ Ingresa el Costo de nueva máquina y Capacidad adicional en la pestaña Entrada de Datos para ver el análisis con tus números reales.</span>`;
+  }
+
+  el('plan-maq-decision').textContent = maqDec;
+  el('plan-maq-reason').textContent = maqReason;
+  el('plan-roi-formula').innerHTML = roiHtml;
+
+  // SECTION C — Escenarios
+  const base = c.util + c.margen * c.diasRest;
+  const opt = c.util + c.margen * 1.15 * c.diasRest;
+  const pes = c.util + c.margen * 0.85 * c.diasRest;
+  const daysToMeta = (scen, mult) => {
+    const dailyRt = c.margen * mult;
+    if (dailyRt <= 0) return null;
+    const needed = META - c.util;
+    if (needed <= 0) return 0;
+    const days = Math.ceil(needed / dailyRt);
+    return days <= c.diasRest ? c.diaActual + days : null;
+  };
+  const mkScenCard = (cls2, label, val, mult, extra='') => {
+    const hits = val >= META;
+    const d = daysToMeta(c.util, mult);
+    return `<div class="scenario-card ${cls2}">
+      <div class="scenario-label">${label}</div>
+      <div class="scenario-value" style="color:${hits?'var(--green)':'var(--red)'}">${fmtD(val)}</div>
+      <div class="scenario-sub">${fmt((val/META)*100,1)}% de la meta</div>
+      ${d ? `<div class="scenario-sub">Llega a $20M el día virtual ${d}</div>` : ''}
+      <span class="scenario-hit ${hits?'hit-yes':'hit-no'}">${hits?'✅ Alcanza $20M':'❌ No alcanza $20M'}</span>
+      ${extra}
+    </div>`;
+  };
+  el('plan-scenarios').innerHTML =
+    mkScenCard('s-opt','🚀 Escenario Optimista (+15%)',opt,1.15,'<div class="scenario-sub" style="margin-top:4px">Si mejoran las decisiones</div>') +
+    mkScenCard('s-base','📊 Escenario Base (ritmo actual)',base,1,'<div class="scenario-sub" style="margin-top:4px">Mantener MCE% y operaciones actuales</div>') +
+    mkScenCard('s-pes','⚠️ Escenario Pesimista (-15%)',pes,0.85,'<div class="scenario-sub" style="margin-top:4px">Si empeoran las condiciones</div>');
+
+  // SECTION D — Horizontes
+  const h1Items = [
+    `${needMCE ? '🔧 PON MCE% A '+c.bestPct+'% ahora' : '✅ Mantén MCE% '+c.bestPct+'%'}`,
+    needMPC ? '🚨 Pide MP Custom INMEDIATAMENTE' : '✅ MP Custom: sin necesidad de pedir',
+    needMPS ? '🚨 Pide MP Standard INMEDIATAMENTE' : '✅ MP Standard: sin necesidad de pedir',
+    `📊 Margen/día: ${fmtD(c.margen)} (meta: ${fmtD(c.metaDiaria)})`
+  ];
+  const h2Items = [
+    `Monitorea WIP Custom (ahora: ${fmt(c.wipC)} u, TT: ${c.tt>0?c.tt.toFixed(1)+' días':'N/A'})`,
+    'Verifica si el precio Custom cambia con el TT (Ley de Little)',
+    'Revisa si demanda subió/bajó y ajusta σ para el Sistema Q',
+    `Objetivo: mantener margen ≥ ${fmtD(c.metaDiaria)}/día`
+  ];
+  const h3Items = [
+    base >= META ? '🟢 A este ritmo alcanzas la meta de $20M' : `🔴 Proyección base: ${fmtD(base)} — necesitas mejorar`,
+    c.diasRest > 100 && !onMeta ? '🔍 Evalúa expansión de capacidad (ver Sección B)' : 'No compres maquinaria adicional en este momento',
+    `Días restantes: ${c.diasRest} · Acumulado: ${fmtD(c.util)} · Faltante: ${fmtD(c.faltante)}`,
+    `Ritmo necesario por día: ${fmtD(c.metaDiaria)} — ${c.margen >= c.metaDiaria ? 'LO CUMPLES' : 'ESTÁS '+fmtD(c.metaDiaria - c.margen)+' CORTO'}`
+  ];
+  const mkHItem = items => items.map(i=>`<div class="horizon-item"><span>•</span><span>${i}</span></div>`).join('');
+  el('plan-horizons').innerHTML = `
+    <div class="horizon-col horizon-col-now">
+      <div class="horizon-title">🚨 AHORA (Esta Ronda)</div>${mkHItem(h1Items)}
+    </div>
+    <div class="horizon-col horizon-col-mid">
+      <div class="horizon-title">⏰ PRÓXIMAS 3 RONDAS</div>${mkHItem(h2Items)}
+    </div>
+    <div class="horizon-col horizon-col-long">
+      <div class="horizon-title">🏁 LARGO PLAZO</div>${mkHItem(h3Items)}
+    </div>`;
+}
+
+function buildProyeccion(c) {
+  const sliderPct = +(el('proj-slider')?.value||0) / 100;
+  const baseDaily = c.margen * (1 + sliderPct);
+  const optDaily = baseDaily * 1.15;
+  const pesDaily = baseDaily * 0.85;
+
+  const projBase = c.util + baseDaily * c.diasRest;
+  const projOpt = c.util + optDaily * c.diasRest;
+  const projPes = c.util + pesDaily * c.diasRest;
+
+  // Summary text
+  el('proj-summary-text').innerHTML = `A este ritmo (base), llegas a <strong>${fmtD(projBase)}</strong> el día 292.
+    ${projBase >= META ? '✅ <span style="color:var(--green);font-weight:700">¡Alcanzas la meta!</span>' : '❌ <span style="color:var(--red);font-weight:700">No alcanzas $20M a este ritmo.</span>'}
+    <br>Optimista: <strong>${fmtD(projOpt)}</strong> · Pesimista: <strong>${fmtD(projPes)}</strong>`;
+
+  // Canvas chart
+  const canvas = el('proj-canvas');
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 600;
+  const H = 300;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const days = [];
+  for (let d = c.diaActual; d <= DIAS_TOTAL; d += 2) days.push(d);
+  if (days[days.length-1] !== DIAS_TOTAL) days.push(DIAS_TOTAL);
+
+  const projAt = (daily, day) => c.util + daily * (day - c.diaActual);
+  const allVals = days.flatMap(d => [projAt(optDaily,d), projAt(pesDaily,d)]);
+  allVals.push(META);
+  const mn = Math.min(...allVals) * 0.97;
+  const mx = Math.max(...allVals) * 1.02;
+  const PAD = { l:60, r:20, t:20, b:40 };
+  const W2 = W - PAD.l - PAD.r, H2 = H - PAD.t - PAD.b;
+  const sx = d => PAD.l + (d - c.diaActual) / (DIAS_TOTAL - c.diaActual) * W2;
+  const sy = v => PAD.t + H2 - (v - mn) / (mx - mn) * H2;
+
+  // Background
+  ctx.fillStyle = '#fafaf8';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines
+  ctx.strokeStyle = '#e8e0d0'; ctx.lineWidth = 1; ctx.setLineDash([]);
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD.t + i * H2/4;
+    ctx.beginPath(); ctx.moveTo(PAD.l, y); ctx.lineTo(W - PAD.r, y); ctx.stroke();
+    const v = mx - i * (mx-mn)/4;
+    ctx.fillStyle = '#888'; ctx.font = '10px system-ui'; ctx.textAlign = 'right';
+    ctx.fillText('$'+fmt(v/1e6,1)+'M', PAD.l-4, y+4);
+  }
+
+  // Day axis labels
+  ctx.fillStyle = '#888'; ctx.font = '10px system-ui'; ctx.textAlign = 'center';
+  [c.diaActual, 150, 200, 250, 292].forEach(d => {
+    if (d >= c.diaActual) {
+      ctx.fillText('D'+d, sx(d), H - PAD.b/2 + 4);
+    }
+  });
+
+  // META line
+  const metaY = sy(META);
+  ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 1.5; ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(PAD.l, metaY); ctx.lineTo(W-PAD.r, metaY); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#c9a227'; ctx.font = 'bold 10px system-ui'; ctx.textAlign = 'left';
+  ctx.fillText('$20M Meta', PAD.l+4, metaY-4);
+
+  // Draw curves
+  const drawCurve = (color, width, daily) => {
+    ctx.strokeStyle = color; ctx.lineWidth = width; ctx.lineJoin = 'round'; ctx.setLineDash([]);
+    ctx.beginPath();
+    days.forEach((d, i) => {
+      const x = sx(d), y = sy(projAt(daily, d));
+      if (i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  };
+  drawCurve('#a33', 1.5, pesDaily);
+  drawCurve('#1b3a5c', 2.5, baseDaily);
+  drawCurve('#2e7d32', 1.5, optDaily);
+
+  // Dot at current
+  ctx.fillStyle = '#7a1f2b';
+  ctx.beginPath(); ctx.arc(sx(c.diaActual), sy(c.util), 5, 0, Math.PI*2); ctx.fill();
+
+  // Table
+  const tablePoints = [];
+  for (let d = c.diaActual; d <= DIAS_TOTAL; d += 20) tablePoints.push(d);
+  if (tablePoints[tablePoints.length-1] !== DIAS_TOTAL) tablePoints.push(DIAS_TOTAL);
+  const tbody = el('proj-tbody');
+  tbody.innerHTML = tablePoints.map(d => {
+    const b = projAt(baseDaily, d), o = projAt(optDaily, d), p2 = projAt(pesDaily, d);
+    const hitB = b >= META, hitO = o >= META, hitP = p2 >= META;
+    return `<tr>
+      <td>Día ${d}</td>
+      <td style="color:${hitO?'var(--green)':'var(--ink)'}">${fmtD(o)}</td>
+      <td style="color:${hitB?'var(--green)':'var(--ink)'}">${fmtD(b)}</td>
+      <td style="color:${hitP?'var(--green)':'var(--red)'}">${fmtD(p2)}</td>
+      <td>${hitO&&hitB&&hitP?'✅ Todos':''}${hitO&&hitB&&!hitP?'⚡ Opt+Base':hitO&&!hitB?'🔵 Solo opt':!hitO?'❌ Ninguno':''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function onSliderChange() {
+  const v = el('proj-slider').value;
+  el('proj-slider-val').textContent = (v>0?'+':'')+v+'%';
+  if (state.lastCalc) buildProyeccion(state.lastCalc);
+}
+
+function buildRecommendations(c) {
+  let recs = [];
+  if (c.mcePct !== c.bestPct) {
+    recs.push({icon:'🔧', text:`<strong>Ajusta MCE% a ${c.bestPct}%</strong> (actual: ${c.mcePct}%). Ganarías +${fmtD(c.bestM - c.margen)}/día adicional.`});
+  } else {
+    recs.push({icon:'✅', text:`<strong>MCE% óptimo confirmado: ${c.bestPct}%</strong> — estás maximizando el margen diario a ${fmtD(c.margen)}/día.`});
+  }
+  if (c.mpC <= c.rC) recs.push({icon:'🚨', text:`<strong>PEDIR MP Custom HOY</strong> — Inventario ${fmt(c.mpC)}u ≤ R=${fmt(c.rC,0)}u. SS=${fmt(c.ssC,0)}u.`});
+  if (c.stockS <= c.rS) recs.push({icon:'🚨', text:`<strong>PEDIR MP Standard HOY</strong> — Stock PT ${fmt(c.stockS)}u ≤ R=${fmt(c.rS,0)}u.`});
+  if (c.tt > 2) recs.push({icon:'⚡', text:`<strong>Reduce WIP Custom</strong> — TT=${c.tt.toFixed(1)} días. WIP alto puede reducir precio Premium.`});
+  if (c.margen < c.metaDiaria) recs.push({icon:'📉', text:`<strong>Margen actual ${fmtD(c.margen)}/día bajo la meta de ${fmtD(c.metaDiaria)}/día</strong> (brecha: ${fmtD(c.metaDiaria - c.margen)}).`});
+  if (c.diasRest < 50) recs.push({icon:'⏰', text:`<strong>Solo ${c.diasRest} días virtuales restantes</strong> — cada decisión cuenta más.`});
+  el('rec-content').innerHTML = recs.map(r=>`<div class="rec-item"><div class="rec-icon">${r.icon}</div><div class="rec-text">${r.text}</div></div>`).join('');
+}
+
+function buildAlerts(c) {
+  let html = '';
+  if (c.mcePct !== c.bestPct) html += `<div class="alert alert-amber">⚡ MCE% no óptimo: tienes ${c.mcePct}%, óptimo es ${c.bestPct}% (diferencia: ${fmtD(c.bestM - c.margen)}/día)</div>`;
+  if (c.mpC <= c.rC) html += `<div class="alert alert-red">🚨 PEDIR MP Custom — Inv ${fmt(c.mpC)}u ≤ R ${fmt(c.rC,0)}u</div>`;
+  if (c.stockS <= c.rS) html += `<div class="alert alert-red">🚨 PEDIR MP Standard — Stock ${fmt(c.stockS)}u ≤ R ${fmt(c.rS,0)}u</div>`;
+  if (c.tt > 3) html += `<div class="alert alert-amber">⚠️ TT Custom alto: ${c.tt.toFixed(1)} días (Ley de Little)</div>`;
+  el('alerts-zone').innerHTML = html || '<div class="alert alert-green">✅ Sin alertas críticas esta ronda</div>';
+}
+
+function buildSolverTable(mce, erle, mcC, mcS, bestPct) {
+  let rows = '';
+  for (let p = 1; p <= 99; p++) {
+    const pC = mce*(p/100), pS = Math.min(mce*(1-p/100), erle);
+    const mC2 = mcC*pC, mS2 = mcS*pS, m = mC2+mS2;
+    rows += `<tr${p===bestPct?' class="optimal"':''}><td>${p}%</td><td>${fmt(pC,0)}</td><td>${fmt(pS,0)}</td><td>${fmtD(mC2)}</td><td>${fmtD(mS2)}</td><td>${fmtD(m)}</td></tr>`;
+  }
+  el('solver-body').innerHTML = rows;
+  setTimeout(()=>{ const r=el('solver-body').querySelector('tr.optimal'); if(r)r.scrollIntoView({block:'center'}); }, 100);
+}
+
+function buildWA(c) {
+  const now = new Date();
+  const hora = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const qC = c.mpC<=c.rC?'🚨 PEDIR HOY':'✅ ESPERAR';
+  const qS = c.stockS<=c.rS?'🚨 PEDIR HOY':'✅ ESPERAR';
+  const onMeta = c.margen>=c.metaDiaria?'🟢 EN META':'🔴 BAJO META';
+  const msg = `🏥 *MEDICA SCIENTIFIC — RONDA ${c.ronda}*\n🕐 ${hora} | Día virtual: ${c.diaActual} | Días restantes: ${c.diasRest}\n\n📊 *PRODUCCIÓN*\n• Custom (MTO): ${fmt(c.prodC,0)} u/día (MCE ${c.mcePct}%)\n• Standard (MTS): ${fmt(c.prodS,0)} u/día\n• MCE% Óptimo: *${c.bestPct}%* ${c.mcePct!==c.bestPct?'⚡ ¡CAMBIAR!':'✅ correcto'}\n\n💰 *MARGEN*\n• Margen Custom: $${c.mcC}/u × ${fmt(c.prodC,0)} = ${fmtD(c.mcC*c.prodC)}/día\n• Margen Standard: $${c.mcS}/u × ${fmt(c.prodS,0)} = ${fmtD(c.mcS*c.prodS)}/día\n• *TOTAL: ${fmtD(c.margen)}/día* ${onMeta}\n• Meta diaria: ${fmtD(c.metaDiaria)}/día\n\n🎯 *META $20M*\n• Acumulado: ${fmtD(c.util)}\n• Faltante: ${fmtD(c.faltante)}\n• Avance: ${((c.util/META)*100).toFixed(1)}%\n\n📦 *SISTEMA Q*\n• MP Custom: ${fmt(c.mpC)}u (R=${fmt(c.rC,0)}u) → ${qC}\n• Stock PT Standard: ${fmt(c.stockS)}u (R=${fmt(c.rS,0)}u) → ${qS}\n\n⚡ *LEY DE LITTLE*\n• WIP Custom: ${fmt(c.wipC)}u | TT: ${c.tt>0?c.tt.toFixed(1)+' días':'N/A'}\n\n✅ *ACCIÓN PRIORITARIA*\n${c.mcePct!==c.bestPct?`→ Cambiar MCE% a ${c.bestPct}% (ganancia: +${fmtD(c.bestM-c.margen)}/día)\n`:'→ Mantener MCE% '+c.bestPct+'%\n'}${c.mpC<=c.rC?'→ PEDIR materia prima Custom AHORA\n':''}${c.stockS<=c.rS?'→ PEDIR MP Standard AHORA\n':''}\nDistribución autorizada: Mateo S. Mizco · GO MIMIT-2027 | 26-09 · INCAE 2026`;
+  el('wa-msg').textContent = msg;
+}
+
+function copiarWA() {
+  const txt = el('wa-msg').textContent;
+  try {
+    navigator.clipboard.writeText(txt).then(()=>{
+      const btn=document.querySelector('.btn-green'); btn.textContent='✅ Copiado!';
+      setTimeout(()=>{ btn.textContent='📋 Copiar Mensaje'; }, 2000);
+    }).catch(()=>seleccionarWA());
+  } catch(e){ seleccionarWA(); }
+}
+function seleccionarWA(){const pre=el('wa-msg');const r=document.createRange();r.selectNodeContents(pre);const s=window.getSelection();s.removeAllRanges();s.addRange(r);}
+
+function guardarRonda() {
+  if (!state.lastCalc) { calcular(); return; }
+  const c = state.lastCalc;
+  state.rondas.push({ ronda:c.ronda, dia:c.diaActual, mcePct:c.mcePct, prodC:c.prodC, prodS:c.prodS, margen:c.margen, util:c.util, ts:Date.now() });
+  saveState(); renderHistorial();
+  el('in-ronda').value = c.ronda + 1;
+  el('in-dia').value = Math.min(292, c.diaActual + 4);
+  showTab('historial');
+}
+
+function renderHistorial() {
+  const rondas = state.rondas;
+  if (!rondas.length) {
+    el('hist-body').innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px">No hay rondas guardadas aún</td></tr>';
+    el('s-rounds').textContent='0'; return;
+  }
+  el('hist-body').innerHTML = rondas.map(r=>`<tr><td>R${r.ronda}</td><td>${r.dia}</td><td>${r.mcePct}%</td><td>${fmt(r.prodC,0)}</td><td>${fmt(r.prodS,0)}</td><td>${fmtD(r.margen)}</td><td>${fmtD(r.util)}</td></tr>`).join('');
+  const margenes = rondas.map(r=>r.margen);
+  const avg = margenes.reduce((a,b)=>a+b,0)/margenes.length;
+  const best = Math.max(...margenes), worst = Math.min(...margenes);
+  const last3 = margenes.slice(-3);
+  const trend = last3.length>=2?(last3[last3.length-1]>last3[0]?'📈 Mejorando':last3[last3.length-1]<last3[0]?'📉 Bajando':'➡️ Estable'):'—';
+  el('s-rounds').textContent=rondas.length;
+  el('s-avg').textContent=fmtD(avg);
+  el('s-best').textContent=fmtD(best);
+  el('s-worst').textContent=fmtD(worst);
+  el('s-trend').textContent=trend;
+  drawSparkline(margenes);
+}
+
+function drawSparkline(data) {
+  const cvs = el('sparkline');
+  const ctx = cvs.getContext('2d');
+  const W = cvs.offsetWidth||400, H = 80;
+  cvs.width = W*(window.devicePixelRatio||1); cvs.height = H*(window.devicePixelRatio||1);
+  ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
+  ctx.clearRect(0,0,W,H);
+  if (data.length<2) return;
+  const mn = Math.min(...data)*0.95, mx = Math.max(...data)*1.05;
+  const sy = v=>H-10-(v-mn)/(mx-mn)*(H-20);
+  const sx = i=>10+i*(W-20)/(data.length-1);
+  const target = 82645;
+  if (target>=mn && target<=mx) {
+    ctx.strokeStyle='#c9a22750'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(10,sy(target)); ctx.lineTo(W-10,sy(target)); ctx.stroke();
+    ctx.setLineDash([]); ctx.fillStyle='#c9a227'; ctx.font='10px system-ui';
+    ctx.fillText('Meta $82,645',12,sy(target)-3);
+  }
+  ctx.strokeStyle='#7a1f2b'; ctx.lineWidth=2; ctx.lineJoin='round'; ctx.beginPath();
+  data.forEach((v,i)=>{ if(i===0)ctx.moveTo(sx(i),sy(v)); else ctx.lineTo(sx(i),sy(v)); }); ctx.stroke();
+  data.forEach((v,i)=>{ ctx.fillStyle=v>=82645?'#2e7d32':'#a33'; ctx.beginPath(); ctx.arc(sx(i),sy(v),4,0,Math.PI*2); ctx.fill(); });
+}
+
+function limpiarHistorial() {
+  if (confirm('¿Limpiar todo el historial de rondas?')) { state.rondas=[]; saveState(); renderHistorial(); }
+}
+
+function resetForm() {
+  const defaults={'in-mce':1200,'in-erle':450,'in-mcepct':73,'in-pc':52,'in-ps':31,'in-cvc':19,'in-cvs':14,'in-dc':950,'in-ds':420,'in-sigma-c':80,'in-sigma-s':40,'in-wip-c':0,'in-stock-s':0,'in-mp-c':0,'in-mp-s':0,'in-maq-cost':0,'in-maq-cap':0};
+  Object.entries(defaults).forEach(([id,v])=>{ if(el(id)) el(id).value=v; });
+}
+
+function cargarExcel(input) {
+  const file = input.files[0]; if (!file) return;
+  const statusEl = el('excel-status');
+  statusEl.textContent = '⏳ Leyendo '+file.name+'...';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(new Uint8Array(e.target.result), {type:'array'});
+      function lastVal(sn, ci) {
+        const ws=wb.Sheets[sn]; if(!ws) return null;
+        const j=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+        for (let r=j.length-1;r>=1;r--) { const v=j[r][ci]; if(v!==''&&v!=null&&!isNaN(parseFloat(v))) return parseFloat(v); }
+        return null;
+      }
+      function lastRow(sn) { const ws=wb.Sheets[sn]; if(!ws) return null; return XLSX.utils.sheet_to_json(ws,{header:1,defval:''}); }
+      const shNames = wb.SheetNames;
+      const find = p => shNames.find(n=>n.toLowerCase().includes(p.toLowerCase()));
+      const shC=find('Custom'),shS=find('Standard'),shI=find('Inventario')||find('inventory'),shF=find('Finanzas')||find('finance'),shH=find('Historial')||find('history');
+      let filled=[];
+      if(shH){const d=lastVal(shH,0);if(d!=null){el('in-dia').value=Math.round(d);filled.push('Día='+Math.round(d));}}
+      if(shF){const cash=lastVal(shF,1);if(cash!=null){el('in-util').value=Math.round(cash);filled.push('Util=$'+Math.round(cash).toLocaleString());}}
+      if(shC){
+        const wC=lastVal(shC,3);if(wC!=null){el('in-wip-c').value=Math.round(wC);filled.push('WIP_C='+Math.round(wC));}
+        const pC=lastVal(shC,15);if(pC!=null){el('in-pc').value=Math.round(pC*100)/100;filled.push('Precio_C=$'+pC.toFixed(0));}
+        const rC=lastRow(shC);if(rC){let dC=null;for(let r=rC.length-1;r>=1;r--){const v=rC[r][11];if(v!==''&&!isNaN(parseFloat(v))){dC=parseFloat(v);break;}}if(dC!=null){el('in-dc').value=Math.round(dC);filled.push('Dem_C='+Math.round(dC));}}
+      }
+      if(shS){
+        const sS=lastVal(shS,11);if(sS!=null){el('in-stock-s').value=Math.round(sS);filled.push('Stock_S='+Math.round(sS));}
+        const pS=lastVal(shS,15);if(pS!=null){el('in-ps').value=Math.round(pS*100)/100;filled.push('Precio_S=$'+pS.toFixed(0));}
+        const rS=lastRow(shS);if(rS){let dS=null;for(let r=rS.length-1;r>=1;r--){const v=rS[r][12];if(v!==''&&!isNaN(parseFloat(v))){dS=parseFloat(v);break;}}if(dS!=null){el('in-ds').value=Math.round(dS);filled.push('Dem_S='+Math.round(dS));}}
+      }
+      if(shI){const mC=lastVal(shI,2);if(mC!=null){el('in-mp-c').value=Math.round(mC);filled.push('MP_C='+Math.round(mC));}}
+      statusEl.textContent='✅ '+file.name+' · '+filled.length+' campos llenados automáticamente';
+      statusEl.style.color='#90ee90';
+      calcular();
+    } catch(err) {
+      statusEl.textContent='❌ Error leyendo el Excel: '+err.message;
+      statusEl.style.color='#ff8080';
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function updateClock() {
+  const now=new Date(), end=new Date('2026-10-11T19:00:00'), diff=end-now;
+  if(diff>0){const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000);el('hdr-time').textContent=`Simulación termina en ${h}h ${m}m`;}
+  else el('hdr-time').textContent='Simulación finalizada';
+}
+updateClock(); setInterval(updateClock,60000);
+renderHistorial();
+calcular();
+</script>
+
+</body></html>
